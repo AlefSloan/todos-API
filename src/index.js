@@ -10,7 +10,17 @@ app.use(express.json());
 const users = [];
 
 function checksExistsUserAccount(req, res, next) {
-  // Complete aqui
+  const { username } = req.headers;
+
+  const user = users.find((user) => user.username === username);
+
+  if (!user) {
+    return res.status(404).json({ error: 'Usuário não encontrado' });
+  }
+
+  req.user = user;
+
+  next();
 }
 
 app.post('/users', (req, res) => {
@@ -35,11 +45,26 @@ app.post('/users', (req, res) => {
 });
 
 app.get('/todos', checksExistsUserAccount, (req, res) => {
-  // Complete aqui
+  const { user } = req;
+
+  return res.status(200).json(user.todos);
 });
 
 app.post('/todos', checksExistsUserAccount, (req, res) => {
-  // Complete aqui
+  const { user } = req;
+  const { title, deadline } = req.body;
+
+  const newTodo = {
+    id: crypto.randomUUID(),
+    title,
+    done: false,
+    deadline,
+    created_at: new Date()
+  }
+
+  user.todos.push(newTodo);
+
+  return res.status(201).json(newTodo);
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (req, res) => {
