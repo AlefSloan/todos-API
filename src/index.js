@@ -91,7 +91,26 @@ app.put('/todos/:id', checksExistsUserAccount, (req, res) => {
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (req, res) => {
-  // Complete aqui
+  const { user } = req;
+  const { id } = req.params;
+
+  const todoIndex = user.todos.findIndex((todo) => todo.id === id);
+
+  if (todoIndex === -1) {
+    return res.status(404).json({ error: "Todo não encontrado" });
+  }
+
+  user.todos[todoIndex].done = !user.todos[todoIndex].done;
+
+  const newTodoDoneState = {
+    id,
+    deadline: user.todos[todoIndex].deadline,
+    done: user.todos[todoIndex].done,
+    title: user.todos[todoIndex].title,
+    created_at: user.todos[todoIndex].created_at
+  }
+
+  return res.status(200).json(newTodoDoneState);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (req, res) => {
