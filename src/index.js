@@ -68,7 +68,26 @@ app.post('/todos', checksExistsUserAccount, (req, res) => {
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (req, res) => {
-  // Complete aqui
+  const { user } = req;
+  const { title, deadline } = req.body;
+  const { id } = req.params;
+
+  const todoIndex = user.todos.findIndex((todo) => todo.id === id)
+
+  if (todoIndex === -1) {
+    return res.status(404).json({ error: 'Todo não encontrado' });
+  }
+
+  user.todos[todoIndex].title = title;
+  user.todos[todoIndex].deadline = deadline;
+
+  const newTodo = {
+    deadline,
+    title,
+    done: user.todos[todoIndex].done
+  }
+
+  return res.status(200).json(newTodo);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (req, res) => {
